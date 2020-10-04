@@ -8,7 +8,7 @@ Branch: CSE
 import java.util.*;
 
 
-abstract class Characters{
+abstract class Characters{     //abstract class
     private int HP;
     private int ID = -1;
 
@@ -30,7 +30,7 @@ abstract class Characters{
 }
 
 
-class Mafia extends Characters{
+class Mafia extends Characters{    //Mafia
     public Mafia(int ID){   //constructor
         setHP(2500);
         setID(ID);
@@ -48,7 +48,7 @@ class Mafia extends Characters{
 }
 
 
-class Detective extends Characters{
+class Detective extends Characters{    //Detective
     public Detective(int ID){   //constructor
         setHP(800);
         setID(ID);
@@ -66,7 +66,7 @@ class Detective extends Characters{
 }
 
 
-class Healer extends Characters{
+class Healer extends Characters{       //Healer
     public Healer(int ID){    //constructor
         setHP(800);
         setID(ID);
@@ -84,7 +84,7 @@ class Healer extends Characters{
 }
 
 
-class Commoner extends Characters{
+class Commoner extends Characters{      //Commoner
     public Commoner(int ID){     //constructor
         setHP(1000);
         setID(ID);
@@ -102,7 +102,7 @@ class Commoner extends Characters{
 }
 
 
-class GenericPlayerList <T> {
+class GenericPlayerList <T> {      //Generic
     private ArrayList<T> Players;
     public GenericPlayerList(){
         Players = new ArrayList<T>();
@@ -141,6 +141,7 @@ public class Game {
     public static void assign(int N){
         int rand_1 = rand.nextInt(100);
         int id = rand_1 % N;
+
         if(assigned.size() == 0){   //if 1st id is being assigned
             assigned.add(id);
 
@@ -167,12 +168,11 @@ public class Game {
         }
 
 
-        else{
-                if(!assigned.contains(id)){
-                    //assign(N);
-                //}
-                //else{
+        else{  //if assigned array is not empty
+
+                if(!assigned.contains(id)){   //if it does not contain the id generated rn --> to check if that id has already been assigned a character
                     assigned.add(id);
+
                     if(MafiaCnt!=0){
                         Mafia M = new Mafia(id);
                         maf.add(M);
@@ -200,6 +200,8 @@ public class Game {
     }
 
 
+
+    //GAME MAIN
     public static void main(String[] args){
         int UserCharacChoice;
         Scanner scan = new Scanner(System.in);
@@ -229,25 +231,84 @@ public class Game {
         }
 
         switch(UserCharacChoice){
-            case 1:    //User - mafia
+            case 1:    //User chooses mafia
                 int rand_M = rand.nextInt(100);
                 int UserMafID = rand_M % maf.size();
+                Mafia User_M = new Mafia(maf.get(UserMafID).getID());
+                System.out.println("You are Player " + maf.get(UserMafID).getID());
+                System.out.println("You are a Mafia. Other Mafias are: ");
+                for(int y=0; y< maf.size();y++){
+                    if(maf.get(y).getID() != User_M.getID()){
+                        System.out.println("Player "+maf.get(y).getID());
+                    }
+                }
                 break;
 
-            case 2:    //user - detective
+
+            case 2:    //user chooses detective
                 int rand_D = rand.nextInt(100);
                 int UserDetID = rand_D % det.size();
+                Detective User_D = new Detective(det.get(UserDetID).getID());
+                System.out.println("You are Player " + det.get(UserDetID).getID());
+                System.out.println("You are a Detective. Other Detectives are: ");
+                for(int y=0; y< det.size();y++){
+                    if(det.get(y).getID() != User_D.getID()){
+                        System.out.println("Player "+det.get(y).getID());
+                    }
+                }
                 break;
 
-            case 3:    //user - healer
+
+            case 3:    //user chooses healer
                 int rand_H = rand.nextInt(100);
                 int UserHealID = rand_H % heal.size();
+                Healer User_H = new Healer(heal.get(UserHealID).getID());
+                System.out.println("You are Player " + heal.get(UserHealID).getID());
+                System.out.println("You are a Healer. Other Healers are: ");
+                for(int y=0; y< heal.size();y++){
+                    if(heal.get(y).getID() != User_H.getID()){
+                        System.out.println("Player "+heal.get(y).getID());
+                    }
+                }
                 break;
-            case 4:     //User - Commoner
+
+
+            case 4:     //User chooses Commoner
                 int rand_C = rand.nextInt(100);
                 int UserComID = rand_C % com.size();
+                Commoner User_C = new Commoner(com.get(UserComID).getID());
+                System.out.println("You are Player " + com.get(UserComID).getID());
+                System.out.println("You are a Commoner. Other Commoners are: ");
+                for(int y=0; y< com.size();y++){
+                    if(com.get(y).getID() != User_C.getID()){
+                        System.out.println("Player "+com.get(y).getID());
+                    }
+                }
                 break;
-            case 5:     //user - Randomly assigned
+
+
+            case 5:     //User - Randomly assigned  --> always assign user player 0 and whatever is assigned to 0 id is what the user will be
+                for(int i=0; i< maf.size();i++){  //to check if id 0 is a mafia
+                    if(maf.get(i).getID() == 0){
+                        Mafia User_R = new Mafia(0);
+                    }
+                }
+                for(int i=0; i< det.size();i++){   //to check if id 0 is a detective
+                    if(det.get(i).getID() == 0){
+                        Detective User_R = new Detective(0);
+                    }
+                }
+                for(int i=0; i< heal.size();i++){    //to check if id 0 is a healer
+                    if(heal.get(i).getID() == 0){
+                        Healer User_R = new Healer(0);
+                    }
+                }
+                for(int i=0; i< com.size();i++){    //to check if id 0 is a commoner
+                    if(com.get(i).getID() == 0){
+                        Commoner User_R = new Commoner(0);
+                        System.out.println("yay");
+                    }
+                }
                 break;
 
         }
