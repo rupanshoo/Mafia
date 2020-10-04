@@ -107,6 +107,9 @@ class GenericPlayerList <T> {
     public GenericPlayerList(){
         Players = new ArrayList<T>();
     }
+    public int size(){
+        return Players.size();
+    }
     public void add(T o){
         Players.add(o);
     }
@@ -118,23 +121,87 @@ class GenericPlayerList <T> {
 
 public class Game {
 
-    int[] assigned = new int[N];
-
-    public static void assign(int N){
-        Random rand = new Random(100);
-        int id = 100%N;
-    }
-
     public static int N;  //total no. of players in the game
     public static int MafiaCnt;
     public static int DetectiveCnt;
     public static int HealerCnt;
     public static int CommonerCnt;
+    public static List<Integer> assigned = new ArrayList();   //to store which ids have been assigned
+    public static Random rand = new Random();   //a random variable to use throughout the program
 
-    public static void main(String args[]){
+
+    //Generic List of Characters
+    public static GenericPlayerList<Mafia> maf;
+    public static GenericPlayerList<Detective> det;
+    public static GenericPlayerList<Healer> heal;
+    public static GenericPlayerList<Commoner> com;
+
+
+    //to randomly assign players
+    public static void assign(int N){
+        int rand_1 = rand.nextInt(100);
+        int id = rand_1 % N;
+        if(assigned.size() == 0){   //if 1st id is being assigned
+            assigned.add(id);
+
+            if(MafiaCnt!=0){
+                Mafia M = new Mafia(id);
+                maf.add(M);
+                MafiaCnt--;
+            }
+            else if(DetectiveCnt!=0){
+                Detective D = new Detective(id);
+                det.add(D);
+                DetectiveCnt--;
+            }
+            else if(HealerCnt!=0){
+                Healer H = new Healer(id);
+                heal.add(H);
+                HealerCnt--;
+            }
+            else {
+                Commoner C = new Commoner(id);
+                com.add(C);
+                CommonerCnt--;
+            }
+        }
+
+
+        else{
+                if(!assigned.contains(id)){
+                    //assign(N);
+                //}
+                //else{
+                    assigned.add(id);
+                    if(MafiaCnt!=0){
+                        Mafia M = new Mafia(id);
+                        maf.add(M);
+                        MafiaCnt--;
+                    }
+                    else if(DetectiveCnt!=0){
+                        Detective D = new Detective(id);
+                        det.add(D);
+                        DetectiveCnt--;
+                    }
+                    else if(HealerCnt!=0){
+                        Healer H = new Healer(id);
+                        heal.add(H);
+                        HealerCnt--;
+                    }
+                    else {
+                        Commoner C = new Commoner(id);
+                        com.add(C);
+                        CommonerCnt--;
+                    }
+                }
+
+        }
+
+    }
+
+
+    public static void main(String[] args){
         int UserCharacChoice;
-
-
         Scanner scan = new Scanner(System.in);
         System.out.println("WELCOME TO MAFIA!\nEnter Number of Players: \n");
         N = scan.nextInt();
@@ -148,23 +215,37 @@ public class Game {
         CommonerCnt = N - (MafiaCnt+DetectiveCnt+HealerCnt);
 
 
-        GenericPlayerList<Mafia> maf = new GenericPlayerList<Mafia>();
-        GenericPlayerList<Detective> det = new GenericPlayerList<Detective>();
-        GenericPlayerList<Healer> heal = new GenericPlayerList<Healer>();
-        GenericPlayerList<Commoner> com = new GenericPlayerList<Commoner>();
+        maf = new GenericPlayerList<Mafia>();
+        det = new GenericPlayerList<Detective>();
+        heal = new GenericPlayerList<Healer>();
+        com = new GenericPlayerList<Commoner>();
 
         System.out.println("Choose a Character\n");
         System.out.println("1. Mafia\n2. Detective\n3. Healer\n4. Commoner\n5. Assign Randomly\n");
         UserCharacChoice = scan.nextInt();
 
+        while(assigned.size()!=N){    //to assign characters to player IDs
+            assign(N);
+        }
+
         switch(UserCharacChoice){
             case 1:    //User - mafia
+                int rand_M = rand.nextInt(100);
+                int UserMafID = rand_M % maf.size();
                 break;
+
             case 2:    //user - detective
+                int rand_D = rand.nextInt(100);
+                int UserDetID = rand_D % det.size();
                 break;
+
             case 3:    //user - healer
+                int rand_H = rand.nextInt(100);
+                int UserHealID = rand_H % heal.size();
                 break;
             case 4:     //User - Commoner
+                int rand_C = rand.nextInt(100);
+                int UserComID = rand_C % com.size();
                 break;
             case 5:     //user - Randomly assigned
                 break;
