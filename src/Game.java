@@ -27,6 +27,7 @@ abstract class Characters{     //abstract class
     public int getID() {
         return ID;
     }
+
 }
 
 
@@ -119,15 +120,27 @@ class GenericPlayerList <T> {      //Generic
 }
 
 
+
+
 public class Game {
 
+    //Global variables
+    public static Scanner scan = new Scanner(System.in);
     public static int N;  //total no. of players in the game
     public static int MafiaCnt;
     public static int DetectiveCnt;
     public static int HealerCnt;
     public static int CommonerCnt;
     public static List<Integer> assigned = new ArrayList();   //to store which ids have been assigned
+    public static List<Integer> ActivePlayers;
+    public static List<Integer> removed = new ArrayList<>();  //to store player ids that were removed.
     public static Random rand = new Random();   //a random variable to use throughout the program
+
+    public static Mafia User_RM;
+    public static Detective User_RD;
+    public static Healer User_RH;
+    public static Commoner User_RC;
+
 
 
     //Generic List of Characters
@@ -135,6 +148,10 @@ public class Game {
     public static GenericPlayerList<Detective> det;
     public static GenericPlayerList<Healer> heal;
     public static GenericPlayerList<Commoner> com;
+
+    public static Detective tD;
+    public static Healer tH;
+    public static Commoner tC;
 
 
     //to randomly assign players
@@ -201,12 +218,160 @@ public class Game {
 
 
 
-    //GAME MAIN
+   /////////////////////GAME PLAY//////////////////////
+    public static void GamePlay_UserMafia(){
+        boolean[] t = {false, false, false, false};
+        System.out.println("Choose target: ");
+        int Target = scan.nextInt();
+
+        int MafHPTotal = 0;
+        for(int j=0; j< maf.size();j++){  //calculate mafia's total HP
+            MafHPTotal+=maf.get(j).getHP();
+        }
+
+        if(!ActivePlayers.contains(Target)){    //if target is alive or dead
+            System.out.println("This player is dead. Choose another Player!!");
+            GamePlay_UserMafia();
+        }
+
+        for(int i=0; i< maf.size();i++) {
+            if (maf.get(i).getID() == Target) {    //if target is a fellow mafia
+                System.out.println("You cannot choose a fellow Mafia.");
+                GamePlay_UserMafia();
+            }
+        }
+
+        for(int i=0; i< det.size();i++) {
+            if (det.get(i).getID() == Target) {    //if target is a detective
+                tD = new Detective(Target);
+                //Target HP calculations
+                Detective_Target(tD, MafHPTotal);
+
+                //Detective - if false then voting will take place, else no voting, straight removal
+                boolean voting_decision = Random_Detective();
+
+                //Healer
+                Random_Healer();
+
+                //t[1] = true;
+            }
+        }
+
+        for(int i=0; i< heal.size();i++) {
+            if (heal.get(i).getID() == Target) {    //if target is a healer
+                tH = new Healer(Target);
+                System.out.println(tH);
+                //t[2] = true;
+            }
+        }
+
+        for(int i=0; i< com.size();i++) {
+            if (com.get(i).getID() == Target) {    //if target is a commoner
+                tC = new Commoner(Target);
+                System.out.println(tC);
+                //t[3] = true;
+            }
+        }
+    }
+
+    //When target is a detective
+    public static void Detective_Target(Detective target, int MafTotal){
+        int OGTargetHP = target.getHP();
+        int activeMaf = 0;
+        int divide = -1;
+
+        for(int i=0;i<maf.size();i++){
+            if(maf.get(i).getHP()>0){
+                activeMaf++;
+            }
+        }
+
+        //HP change of target
+        if(MafTotal>= target.getHP()){
+            target.setID(0);
+        }
+        else{
+            target.setHP(target.getHP()-MafTotal);
+        }
+
+        //Damage on Mafias
+        for(int i=0; i<maf.size();i++){
+            if(maf.get(i).getHP() > OGTargetHP/activeMaf){
+                maf.get(i).setHP(maf.get(i).getHP() - OGTargetHP/activeMaf);
+            }
+            else{
+                maf.get(i).setHP(maf.get(i).getHP() - OGTargetHP/activeMaf);
+                divide = divide*maf.get(i).getHP();
+                maf.get(i).setHP(0);
+            }
+        }
+
+        if(divide!= -1){
+            int actTemp = 0;  //to get current active mafias
+            for(int i=0;i<maf.size();i++){
+                if(maf.get(i).getHP() > 0){
+                    actTemp++;
+                }
+            }
+
+            for(int i=0; i<maf.size();i++){
+                if(maf.get(i).getHP() > 0){
+                    maf.get(i).setHP(maf.get(i).getHP() - divide/actTemp);
+                }
+            }
+        }
+    }
+
+
+    //Computerised Detective
+    public static boolean Random_Detective(){
+        int detect_Random = rand.nextInt(100);
+        int detect_ID = detect_Random%N;
+        if(!ActivePlayers.contains(detect_ID)){ Random_Detective();}
+        else{
+            for(int i=0; i<maf.size();i++){
+                if(maf.get(i).getID() == detect_ID){return true;}
+            }
+        }
+        return false;
+    }
+
+
+    //Computerised Healer
+    public static void Random_Healer(){
+        int heal_Rand = rand.nextInt(100);
+        int heal_ID = heal_Rand%N;
+        if(!ActivePlayers.contains(heal_ID)){
+            Random_Healer();
+        }
+        else{
+            for(int i=0; i< maf.size();i++){  //if healer chose a mafia
+                if(maf.get(i).getID() == heal_ID){maf.get(i).setHP(maf.get(i).getHP()+500);}
+            }
+            for(int i=0; i< det.size();i++){  //if healer chose a detective
+                if(det.get(i).getID() == heal_ID){det.get(i).setHP(det.get(i).getHP()+500);}
+            }
+            for(int i=0; i< heal.size();i++){  //if healer chose a healer
+                if(heal.get(i).getID() == heal_ID){heal.get(i).setHP(heal.get(i).getHP()+500);}
+            }
+            for(int i=0; i< com.size();i++){  //if healer chose a commoner
+                if(com.get(i).getID() == heal_ID){com.get(i).setHP(com.get(i).getHP()+500);}
+            }
+        }
+    }
+
+
+
+    /////////////////GAME MAIN////////////////////////
     public static void main(String[] args){
         int UserCharacChoice;
-        Scanner scan = new Scanner(System.in);
+        int GameRounds = 1;
+        int PlayersRemaining;
+
+
         System.out.println("WELCOME TO MAFIA!\nEnter Number of Players: \n");
         N = scan.nextInt();
+        PlayersRemaining = N;
         while(N<6){
             System.out.println("Enter Number of Players greater than 6: \n");
             N = scan.nextInt();
@@ -229,6 +394,14 @@ public class Game {
         while(assigned.size()!=N){    //to assign characters to player IDs
             assign(N);
         }
+
+        //get a sorted list of active players
+        ActivePlayers = new ArrayList<>();
+        for(int z=0; z<assigned.size();z++){
+            ActivePlayers.add(assigned.get(z));
+        }
+        Collections.sort(ActivePlayers);
+
 
         switch(UserCharacChoice){
             case 1:    //User chooses mafia
@@ -291,7 +464,7 @@ public class Game {
 
                 for(int i=0; i< maf.size();i++){  //to check if id 0 is a mafia
                     if(maf.get(i).getID() == 0){
-                        Mafia User_R = new Mafia(0);
+                        User_RM = new Mafia(0);
 
                         System.out.println("You are Player 0");
                         System.out.println("You are a Mafia. Other Mafias are: ");
@@ -306,7 +479,7 @@ public class Game {
 
                 for(int i=0; i< det.size();i++){   //to check if id 0 is a detective
                     if(det.get(i).getID() == 0){
-                        Detective User_R = new Detective(0);
+                        User_RD = new Detective(0);
 
                         System.out.println("You are Player 0");
                         System.out.println("You are a Detective. Other Detectives are: ");
@@ -321,7 +494,7 @@ public class Game {
 
                 for(int i=0; i< heal.size();i++){    //to check if id 0 is a healer
                     if(heal.get(i).getID() == 0){
-                        Healer User_R = new Healer(0);
+                        User_RH = new Healer(0);
 
                         System.out.println("You are Player 0");
                         System.out.println("You are a Healer. Other Healers are: ");
@@ -336,7 +509,7 @@ public class Game {
 
                 for(int i=0; i< com.size();i++){    //to check if id 0 is a commoner
                     if(com.get(i).getID() == 0){
-                        Commoner User_R = new Commoner(0);
+                        User_RC = new Commoner(0);
 
                         System.out.println("You are Player 0");
                         System.out.println("You are a Commoner. Other Commoners are: ");
@@ -351,6 +524,24 @@ public class Game {
 
         }  //end of character assignment switch case
 
+
+
+        ////////////////////////////////////GAME PLAY BEGINS///////////////////////////////////////////////
+
+        while(maf.size()!=0 || (maf.size()/(det.size()+ heal.size()+ com.size()) !=1)){   //for game to end
+            System.out.println(" ROUND "+ GameRounds);
+            System.out.println(PlayersRemaining + " Players are remaining: ");
+            for(int i=0; i< ActivePlayers.size();i++){
+                System.out.println("Player " + ActivePlayers.get(i));
+            }
+            if(UserCharacChoice == 1 || (UserCharacChoice == 5 && User_RM.getID()==0)){
+                GamePlay_UserMafia();
+            }
+
+
+
+            GameRounds++;
+        }
 
 
 
