@@ -288,30 +288,71 @@ public class Game {
 
 
             case 5:     //User - Randomly assigned  --> always assign user player 0 and whatever is assigned to 0 id is what the user will be
+
                 for(int i=0; i< maf.size();i++){  //to check if id 0 is a mafia
                     if(maf.get(i).getID() == 0){
                         Mafia User_R = new Mafia(0);
+
+                        System.out.println("You are Player 0");
+                        System.out.println("You are a Mafia. Other Mafias are: ");
+                        for(int y=0; y< maf.size();y++){
+                            if(maf.get(y).getID() != 0){
+                                System.out.println("Player "+maf.get(y).getID());
+                            }
+                        }
                     }
                 }
+
+
                 for(int i=0; i< det.size();i++){   //to check if id 0 is a detective
                     if(det.get(i).getID() == 0){
                         Detective User_R = new Detective(0);
+
+                        System.out.println("You are Player 0");
+                        System.out.println("You are a Detective. Other Detectives are: ");
+                        for(int y=0; y< det.size();y++){
+                            if(det.get(y).getID() != 0){
+                                System.out.println("Player "+det.get(y).getID());
+                            }
+                        }
                     }
                 }
+
+
                 for(int i=0; i< heal.size();i++){    //to check if id 0 is a healer
                     if(heal.get(i).getID() == 0){
                         Healer User_R = new Healer(0);
+
+                        System.out.println("You are Player 0");
+                        System.out.println("You are a Healer. Other Healers are: ");
+                        for(int y=0; y< heal.size();y++){
+                            if(heal.get(y).getID() != 0){
+                                System.out.println("Player "+heal.get(y).getID());
+                            }
+                        }
                     }
                 }
+
+
                 for(int i=0; i< com.size();i++){    //to check if id 0 is a commoner
                     if(com.get(i).getID() == 0){
                         Commoner User_R = new Commoner(0);
-                        System.out.println("yay");
+
+                        System.out.println("You are Player 0");
+                        System.out.println("You are a Commoner. Other Commoners are: ");
+                        for(int y=0; y< com.size();y++){
+                            if(com.get(y).getID() !=0){
+                                System.out.println("Player "+com.get(y).getID());
+                            }
+                        }
                     }
                 }
                 break;
 
-        }
+        }  //end of character assignment switch case
+
+
+
 
     }
 
