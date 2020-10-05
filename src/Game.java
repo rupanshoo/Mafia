@@ -385,6 +385,7 @@ public class Game {
 
     //Computerised Healer
     public static boolean Random_Healer(int Target){
+        boolean ret = false;
         int heal_Rand = rand.nextInt(100);
         int heal_ID = heal_Rand%N;
         if(!ActivePlayers.contains(heal_ID)){
@@ -414,12 +415,13 @@ public class Game {
                 if(com.get(i).getID() == heal_ID){
                     com.get(i).setHP(com.get(i).getHP()+500);
                     if(com.get(i).getHP() == Target){
-                        return true;
+                        ret = true;
                     }
                 }
             }
         }
-        return false;
+        if(ret == true){return true;}
+        else{return false;}
     }
 
 
@@ -443,11 +445,12 @@ public class Game {
                 }
             }
             else{
-                for(int j=0; j<ActivePlayers.size(); j++){    //for other random voters
+                //for(int j=0; j<ActivePlayers.size(); j++){    //for other random voters
                     int VO_rand = rand.nextInt(100);
                     int VO = VO_rand%N;   //id to be voted for
 
                     while (!ActivePlayers.contains(VO)){    //keeps going till it gets a valid id
+                        VO_rand = rand.nextInt(100);
                         VO = VO_rand%N;   //id to be voted for
                     }
 
@@ -458,7 +461,7 @@ public class Game {
                             }
                         }
 
-                }
+
             }
         }
 
