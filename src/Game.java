@@ -282,7 +282,7 @@ public class Game {
 
                 //VOTING DECISION
                 if(voting_decision == -1){   //detectives did not detect the mafia
-                    Voting();
+                    Voting(User.getID());
                 }
                 else{    //detectives detected the mafia
                     System.out.println("Player "+ voting_decision+ " has been voted out!");
@@ -292,7 +292,6 @@ public class Game {
                         if(ActivePlayers.get(k) == voting_decision){ActivePlayers.remove(k);}
                     }
                 }
-                    //t[1] = true;
             }
             return 0;
         }
@@ -301,7 +300,6 @@ public class Game {
             if (heal.get(i).getID() == Target) {    //if target is a healer
                 tH = new Healer(Target);
                 System.out.println(tH);
-                //t[2] = true;
             }
         }
 
@@ -309,7 +307,6 @@ public class Game {
             if (com.get(i).getID() == Target) {    //if target is a commoner
                 tC = new Commoner(Target);
                 System.out.println(tC);
-                //t[3] = true;
             }
         }
 
@@ -427,8 +424,58 @@ public class Game {
 
 
     //Voting
-    public static void Voting(){
-        
+    public static void Voting(int U_ID){
+        int[] votes = new int[ActivePlayers.size()];
+        for(int i=0; i< ActivePlayers.size() ;i++){
+            if(ActivePlayers.get(i) == U_ID){  //=> user is active or alive
+                System.out.println("Select a player to vote out: ");
+                int voteOutID = scan.nextInt();
+
+                while(!ActivePlayers.contains(voteOutID)){   //to check if player id entered is alive or dead
+                    System.out.println("This player is already dead! Select an alive player: ");
+                    voteOutID = scan.nextInt();
+                }
+
+                for(int j=0; j<ActivePlayers.size();j++){
+                    if(ActivePlayers.get(j)==voteOutID){
+                        votes[j]++;
+                    }
+                }
+            }
+            else{
+                for(int j=0; j<ActivePlayers.size(); j++){    //for other random voters
+                    int VO_rand = rand.nextInt(100);
+                    int VO = VO_rand%N;   //id to be voted for
+
+                    while (!ActivePlayers.contains(VO)){    //keeps going till it gets a valid id
+                        VO = VO_rand%N;   //id to be voted for
+                    }
+
+                    //for voting this above random ID generated
+                        for(int l=0;l<ActivePlayers.size();l++){
+                            if(ActivePlayers.get(l) == VO){
+                                votes[l]++;
+                            }
+                        }
+
+                }
+            }
+        }
+
+        int max = 0;
+        int maxID = -1;
+        int tie = 0;
+        for(int i=0; i< votes.length;i++) {
+            if (votes[i] > max) {max = votes[i]; maxID = ActivePlayers.get(i);}
+            else if (votes[i] == max) {tie = votes[i];}
+        }
+        if(max>tie){
+            System.out.println("Player "+ maxID + " has been voted out.");
+        }
+        else{
+            System.out.println("Voting was tied!! Vote again!");
+            Voting(U_ID);
+        }
     }
 
 
