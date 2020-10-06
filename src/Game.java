@@ -142,7 +142,6 @@ public class Game {
     public static Commoner User_RC, User_C;
 
 
-
     //Generic List of Characters
     public static GenericPlayerList<Mafia> maf;
     public static GenericPlayerList<Detective> det;
@@ -152,6 +151,13 @@ public class Game {
     public static Detective tD;
     public static Healer tH;
     public static Commoner tC;
+
+
+    public static int mSize;
+    public static int dSize;
+    public static int hSize;
+    public static int cSize;
+
 
 
     //to randomly assign players
@@ -219,7 +225,7 @@ public class Game {
 
 
    /////////////////////GAME PLAY//////////////////////
-    public static int GamePlay_Mafia(Mafia User){
+    public static void GamePlay_Mafia(Mafia User){
         int Target;
 
         //if user is mafia and user is alive
@@ -237,7 +243,7 @@ public class Game {
             MafHPTotal+=maf.get(j).getHP();
         }
 
-        if(!ActivePlayers.contains(Target)){    //if target is alive or dead
+        if(!ActivePlayers.contains(Target)){    //if target is dead
             System.out.println("This player is dead. Choose another Player!!");
             GamePlay_Mafia(User);
         }
@@ -251,70 +257,179 @@ public class Game {
 
         for(int i=0; i< det.size();i++) {
             if (det.get(i).getID() == Target) {    //if target is a detective
-                tD = new Detective(Target);
-
+                for(int b=0;b<det.size();b++) {
+                    if (det.get(b).getID() == Target) {
+                        tD = new Detective(Target);
+                        tD.setHP(det.get(b).getHP());
+                    }
+                }
 
                 //Target HP calculations
-                Detective_Target(tD, MafHPTotal);
+                Acquired_Target(tD, MafHPTotal);
 
                 //Detective - if -1 then voting will take place, else no voting, straight removal of the id in voting_decision
                 int voting_decision = Random_Detective();
-                System.out.println("Detectives have tested a player.");
+                if(voting_decision!= -2){System.out.println("Detectives have tested a player.");}
 
 
                 //Healer - is false then the healer did not heal the target => dead target
-                boolean saved = Random_Healer(Target);
-                System.out.println("Healers have chosen someone to heal.");
+                int saved = Random_Healer(Target);
+                if(hSize!=0){System.out.println("Healers have chosen someone to heal.");}
 
                 System.out.println("--End of Actions--");
 
-                if(saved == true){
+                if(saved == 1){
                     System.out.println("No one died");
                 }
                 else{
                     System.out.println("Player "+Target+" is dead.");
+                    for(int c=0; c< det.size();c++){   //make hp 0 for dead person
+                        if(det.get(c).getID() == Target){det.get(c).setHP(0);}
+                    }
                     dead.add(Target);
-
+                    dSize--;
                     for(int j=0; j<ActivePlayers.size();j++){
                         if(ActivePlayers.get(j) == Target) {ActivePlayers.remove(j);}
                     }
                 }
 
                 //VOTING DECISION
-                if(voting_decision == -1){   //detectives did not detect the mafia
+                if(voting_decision < 0){   //detectives did not detect the mafia
                     Voting(User.getID());
                 }
-                else{    //detectives detected the mafia
+                else if(voting_decision>=0){   //detectives detected the mafia
                     System.out.println("Player "+ voting_decision+ " has been voted out!");
+                    for(int c=0; c< maf.size();c++){   //mafia voted out so 0 hp
+                        if(maf.get(c).getID() == voting_decision){maf.get(c).setHP(0);}
+                    }
                     dead.add(voting_decision);
-
+                    mSize--;
                     for(int k=0; k<ActivePlayers.size();k++){
                         if(ActivePlayers.get(k) == voting_decision){ActivePlayers.remove(k);}
                     }
                 }
             }
-            return 0;
         }
 
         for(int i=0; i< heal.size();i++) {
             if (heal.get(i).getID() == Target) {    //if target is a healer
-                tH = new Healer(Target);
-                System.out.println(tH);
+                for(int b=0;b<heal.size();b++) {
+                    if (heal.get(b).getID() == Target) {
+                        tH = new Healer(Target);
+                        tH.setHP(heal.get(b).getHP());
+                    }
+                }
+
+                //Target HP calculations
+                Acquired_Target(tH, MafHPTotal);
+
+                //Detective - if -1 then voting will take place, else no voting, straight removal of the id in voting_decision
+                int voting_decision = Random_Detective();
+                if(voting_decision!= -2){System.out.println("Detectives have tested a player.");}
+
+                //Healer - is false then the healer did not heal the target => dead target
+                int saved = Random_Healer(Target);
+                if(hSize!=0){System.out.println("Healers have chosen someone to heal.");}
+
+                System.out.println("--End of Actions--");
+
+                if (saved == 1) {
+                    System.out.println("No one died");
+                } else {
+                    System.out.println("Player " + Target + " is dead.");
+                    for(int c=0; c< heal.size();c++){
+                        if(heal.get(c).getID() == Target){heal.get(c).setHP(0);}
+                    }
+                    dead.add(Target);
+                    hSize--;
+                    for (int j = 0; j < ActivePlayers.size(); j++) {
+                        if (ActivePlayers.get(j) == Target) {
+                            ActivePlayers.remove(j);
+                        }
+                    }
+                }
+
+                //VOTING DECISION
+                if (voting_decision < 0) {   //detectives did not detect the mafia
+                    Voting(User.getID());
+                }
+                else if(voting_decision>=0){    //detectives detected the mafia
+                    System.out.println("Player " + voting_decision + " has been voted out!");
+                    for(int c=0; c< maf.size();c++){
+                        if(maf.get(c).getID() == voting_decision){maf.get(c).setHP(0);}
+                    }
+                    dead.add(voting_decision);
+                    mSize--;
+                    for (int k = 0; k < ActivePlayers.size(); k++) {
+                        if (ActivePlayers.get(k) == voting_decision) {
+                            ActivePlayers.remove(k);
+                        }
+                    }
+                }
+
             }
         }
 
         for(int i=0; i< com.size();i++) {
             if (com.get(i).getID() == Target) {    //if target is a commoner
-                tC = new Commoner(Target);
-                System.out.println(tC);
+                for(int b=0;b<com.size();b++) {
+                    if (com.get(b).getID() == Target) {
+                        tC = new Commoner(Target);
+                        tC.setHP(com.get(b).getHP());
+                    }
+                }
+
+                //Target HP calculations
+                Acquired_Target(tC, MafHPTotal);
+
+                //Detective - if -1 then voting will take place, else no voting, straight removal of the id in voting_decision
+                int voting_decision = Random_Detective();
+                if(voting_decision!= -2){System.out.println("Detectives have tested a player.");}
+
+                //Healer - is false then the healer did not heal the target => dead target
+                int saved = Random_Healer(Target);
+                if(hSize!=0){System.out.println("Healers have chosen someone to heal.");}
+
+                System.out.println("--End of Actions--");
+
+                if(saved == 1){
+                    System.out.println("No one died");
+                }
+                else{
+                    System.out.println("Player "+Target+" is dead.");
+                    for(int c=0; c< com.size();c++){
+                        if(com.get(c).getID() == Target){com.get(c).setHP(0);}
+                    }
+                    dead.add(Target);
+                    cSize--;
+                    for(int j=0; j<ActivePlayers.size();j++){
+                        if(ActivePlayers.get(j) == Target) {ActivePlayers.remove(j);}
+                    }
+                }
+
+                //VOTING DECISION
+                if(voting_decision < 0){   //detectives did not detect the mafia
+                    Voting(User.getID());
+                }
+                else if(voting_decision>=0){    //detectives detected the mafia
+                    System.out.println("Player "+ voting_decision+ " has been voted out!");
+                    for(int c=0; c< maf.size();c++){
+                        if(maf.get(c).getID() == voting_decision){maf.get(c).setHP(0);}
+                    }
+                    dead.add(voting_decision);
+                    mSize--;
+                    for(int k=0; k<ActivePlayers.size();k++){
+                        if(ActivePlayers.get(k) == voting_decision){ActivePlayers.remove(k);}
+                    }
+                }
+
             }
         }
-
-        return 0;
     }
 
-    //When target is a detective
-    public static void Detective_Target(Detective target, int MafTotal){
+
+    //When target is a acquired --> following HP things here
+    public static void Acquired_Target(Characters target, int MafTotal){
         int OGTargetHP = target.getHP();
         int activeMaf = 0;
         int divide = -1;
@@ -335,6 +450,9 @@ public class Game {
 
         //Damage on Mafias
         for(int i=0; i<maf.size();i++){
+            if(activeMaf<=0){
+                break;
+            }
             if(maf.get(i).getHP() > OGTargetHP/activeMaf){
                 maf.get(i).setHP(maf.get(i).getHP() - OGTargetHP/activeMaf);
             }
@@ -365,63 +483,87 @@ public class Game {
 
     //Computerised Detective
     public static int Random_Detective(){
-        int detect_Random = rand.nextInt(100);
-        int detect_ID = detect_Random%N;  //id to be checked
+        if(dSize!=0) {
+            int detect_Random = rand.nextInt(100);
+            int detect_ID = detect_Random % N;  //id to be checked
+            Set<Integer> det_set = new HashSet<Integer>();
 
-        for(int i=0; i< det.size();i++) {   //in case we check a fellow detective
-            if (det.get(i).getID() == detect_ID) {Random_Detective();}
-        }
-
-        if(!ActivePlayers.contains(detect_ID)){Random_Detective();}   //in case player selected by the detective is a dead player
-
-        else{
-            for(int i=0; i<maf.size();i++){    //if player detected is a mafia
-                if(maf.get(i).getID() == detect_ID){return maf.get(i).getID();}
+            for(int s=0; s<det.size(); s++){
+                det_set.add(det.get(s).getID());
             }
+
+            while(det_set.contains(detect_ID) && !ActivePlayers.contains(detect_ID)){
+                detect_ID = rand.nextInt(100)%N;
+            }
+
+            for (int i = 0; i < maf.size(); i++) {    //if player detected is a mafia
+                if (maf.get(i).getID() == detect_ID) {
+                    return maf.get(i).getID();
+                }
+            }
+
+            return -1;
         }
-        return -1;
+        else{
+            System.out.println("All detectives are dead!");
+            return -2;
+        }
     }
 
 
     //Computerised Healer
-    public static boolean Random_Healer(int Target){
-        boolean ret = false;
-        int heal_Rand = rand.nextInt(100);
-        int heal_ID = heal_Rand%N;
-        if(!ActivePlayers.contains(heal_ID)){
-            Random_Healer(Target);
-        }
-        else{
-            for(int i=0; i< maf.size();i++){  //if healer chose a mafia
-                if(maf.get(i).getID() == heal_ID){maf.get(i).setHP(maf.get(i).getHP()+500);}
-            }
-            for(int i=0; i< det.size();i++){  //if healer chose a detective
-                if(det.get(i).getID() == heal_ID){
-                    det.get(i).setHP(det.get(i).getHP()+500);
-                    if(det.get(i).getHP() == Target){
-                        return true;
+    public static int Random_Healer(int Target){
+            int ret = 0;
+            int heal_Rand = rand.nextInt(100);
+            int heal_ID = heal_Rand % N;
+            if (!ActivePlayers.contains(heal_ID)) {    //player to be healed must be alive
+                Random_Healer(Target);
+            } else {
+                if (hSize != 0) {
+                    for (int i = 0; i < maf.size(); i++) {  //if healer chose a mafia
+                        if (maf.get(i).getID() == heal_ID) {
+                            maf.get(i).setHP(maf.get(i).getHP() + 500);
+                        }
+                    }
+                    for (int i = 0; i < det.size(); i++) {  //if healer chose a detective
+                        if (det.get(i).getID() == heal_ID) {
+                            det.get(i).setHP(det.get(i).getHP() + 500);
+                            if (det.get(i).getID() == Target) {
+                                ret = 1;
+                            }
+                        }
+                    }
+                    for (int i = 0; i < heal.size(); i++) {  //if healer chose a healer
+                        if (heal.get(i).getID() == heal_ID) {
+                            heal.get(i).setHP(heal.get(i).getHP() + 500);
+                            if (heal.get(i).getID() == Target) {
+                                ret = 1;
+                            }
+                        }
+                    }
+                    for (int i = 0; i < com.size(); i++) {  //if healer chose a commoner
+                        if (com.get(i).getID() == heal_ID) {
+                            com.get(i).setHP(com.get(i).getHP() + 500);
+                            if (com.get(i).getID() == Target) {
+                                ret = 1;
+                            }
+                        }
                     }
                 }
-            }
-            for(int i=0; i< heal.size();i++){  //if healer chose a healer
-                if(heal.get(i).getID() == heal_ID){
-                    heal.get(i).setHP(heal.get(i).getHP()+500);
-                    if(heal.get(i).getHP() == Target){
-                        return true;
-                    }
+                else{
+                    ret = -1;
                 }
             }
-            for(int i=0; i< com.size();i++){  //if healer chose a commoner
-                if(com.get(i).getID() == heal_ID){
-                    com.get(i).setHP(com.get(i).getHP()+500);
-                    if(com.get(i).getHP() == Target){
-                        ret = true;
-                    }
-                }
+            if (ret == 1) {
+                return 1;
+            } else if(ret == -1){
+                System.out.println("All healers are dead");
+                return -1;
             }
-        }
-        if(ret == true){return true;}
-        else{return false;}
+            else{
+                return 0;
+            }
+
     }
 
 
@@ -474,6 +616,13 @@ public class Game {
         }
         if(max>tie){
             System.out.println("Player "+ maxID + " has been voted out.");
+            dead.add(maxID);
+            for(int a=0; a<maf.size();a++){if(maf.get(a).getID() == maxID){mSize--; maf.get(a).setHP(0);}}
+            for(int a=0; a<det.size();a++){if(det.get(a).getID() == maxID){dSize--; det.get(a).setHP(0);}}
+            for(int a=0; a<heal.size();a++){if(heal.get(a).getID() == maxID){hSize--; heal.get(a).setHP(0);}}
+            for(int a=0; a<com.size();a++){if(com.get(a).getID() == maxID){cSize--; com.get(a).setHP(0);}}
+
+            for(int z=0; z< ActivePlayers.size();z++){if(ActivePlayers.get(z) == maxID){ActivePlayers.remove(z);}}
         }
         else{
             System.out.println("Voting was tied!! Vote again!");
@@ -515,6 +664,11 @@ public class Game {
         while(assigned.size()!=N){    //to assign characters to player IDs
             assign(N);
         }
+
+        mSize = maf.size();
+        dSize = det.size();
+        hSize = heal.size();
+        cSize = com.size();
 
         //get a sorted list of active players
         ActivePlayers = new ArrayList<>();
@@ -649,26 +803,34 @@ public class Game {
 
         ////////////////////////////////////GAME PLAY BEGINS///////////////////////////////////////////////
 
-        while(maf.size()!=0 || (maf.size()/(det.size()+ heal.size()+ com.size()) !=1)){   //for game to end
-            System.out.println("---ROUND "+ GameRounds+ "---");
-            System.out.println(ActivePlayers.size() + " Players are remaining: ");
-            for(int i=0; i< ActivePlayers.size();i++){
-                System.out.println("Player " + ActivePlayers.get(i));
-            }
-            if(UserCharacChoice == 1){
-                GamePlay_Mafia(User_M);
-            }
-            else if((UserCharacChoice == 5 && User_RM.getID()==0)){
-                GamePlay_Mafia(User_RM);
-            }
-
-
-
-            GameRounds++;
+        while(   (mSize/(dSize+ hSize+ cSize) < 1 ) && mSize>0){   //for game to end
+            //if( mSize!=0 ) {
+                System.out.println("---ROUND " + GameRounds + "---");
+                System.out.println(ActivePlayers.size() + " Players are remaining: ");
+                for (int i = 0; i < ActivePlayers.size(); i++) {
+                    System.out.println("Player " + ActivePlayers.get(i));
+                }
+                if (UserCharacChoice == 1) {
+                    GamePlay_Mafia(User_M);
+                } else if ((UserCharacChoice == 5 && User_RM.getID() == 0)) {
+                    GamePlay_Mafia(User_RM);
+                }
+                GameRounds++;
+            //}
         }
 
-
-
+        System.out.println("GAME OVER!!");
+        if(maf.size()==0){System.out.println("The Mafias have lost.");}
+        else if((maf.size()/(det.size()+ heal.size()+ com.size()) ==1)){System.out.println("The Mafias won!!");}
+        for(int i=0; i< maf.size();i++){System.out.println("Player "+ maf.get(i).getID()+ " ");}
+        System.out.println("were mafias.");
+        for(int i=0; i< det.size(); i++){System.out.println("Player " + det.get(i).getID() + " ");}
+        System.out.println("were detectives.");
+        for(int i=0; i< heal.size(); i++){System.out.println("Player " + heal.get(i).getID() + " ");}
+        System.out.println("were healers.");
+        for(int i=0; i< com.size(); i++){System.out.println("Player " + com.get(i).getID() + " ");}
+        System.out.println("were commoners.");
+        System.out.println("--------END OF GAME---------");
     }
 
 }
