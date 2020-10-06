@@ -1121,9 +1121,7 @@ public class Game {
 
         //get a sorted list of active players
         ActivePlayers = new ArrayList<>();
-        for(int z=0; z<assigned.size();z++){
-            ActivePlayers.add(assigned.get(z));
-        }
+        ActivePlayers.addAll(assigned);
         Collections.sort(ActivePlayers);
 
 
@@ -1278,7 +1276,7 @@ public class Game {
             else if(UserCharacChoice == 4){   //User chooses to be a commoner
                 GamePlay_Commoner(User_C);
             }
-            else if((UserCharacChoice == 5 && User_RH.getID() == 0)){    //User chooses random and gets detective
+            else if((UserCharacChoice == 5 && User_RC.getID() == 0)){    //User chooses random and gets detective
                 GamePlay_Commoner(User_RC);
             }
 
