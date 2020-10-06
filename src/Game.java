@@ -8,7 +8,7 @@ Branch: CSE
 import java.util.*;
 
 
-abstract class Characters{     //abstract class
+abstract class Characters {     //abstract class
     private int HP;
     private int ID = -1;
 
@@ -31,7 +31,7 @@ abstract class Characters{     //abstract class
 }
 
 
-class Mafia extends Characters{    //Mafia
+class Mafia extends Characters implements Comparable<Mafia>{    //Mafia
     public Mafia(int ID){   //constructor
         setHP(2500);
         setID(ID);
@@ -46,10 +46,31 @@ class Mafia extends Characters{    //Mafia
     public void setID(int ID) {
         super.setID(ID);
     }
+
+    //Object class equality check
+    @Override
+    public boolean equals(Object o1){
+        if(o1 != null && getClass() == o1.getClass()){
+            Mafia o = (Mafia) o1;
+            return (getID() == o.getID() && getHP() == o.getHP());
+        }
+        else {return false;}
+    }
+
+
+    @Override
+    public int compareTo(Mafia o) {   //based on HP
+        if(getHP() == o.getHP()){
+            return 0;
+        }
+        else if(getHP() < o.getHP()){return -1;}
+        else
+            return 1;
+    }
 }
 
 
-class Detective extends Characters{    //Detective
+class Detective extends Characters implements Comparable<Detective> {    //Detective
     public Detective(int ID){   //constructor
         setHP(800);
         setID(ID);
@@ -64,10 +85,30 @@ class Detective extends Characters{    //Detective
     public void setID(int ID) {
         super.setID(ID);
     }
+
+    //Object class equality check
+    @Override
+    public boolean equals(Object o1){
+        if(o1 != null && getClass() == o1.getClass()){
+            Detective o = (Detective) o1;
+            return (getID() == o.getID() && getHP() == o.getHP());
+        }
+        else {return false;}
+    }
+
+    @Override
+    public int compareTo(Detective o) {   //based on HP
+        if(getHP() == o.getHP()){
+            return 0;
+        }
+        else if(getHP() < o.getHP()){return -1;}
+        else
+            return 1;
+    }
 }
 
 
-class Healer extends Characters{       //Healer
+class Healer extends Characters implements Comparable<Healer>{       //Healer
     public Healer(int ID){    //constructor
         setHP(800);
         setID(ID);
@@ -82,10 +123,30 @@ class Healer extends Characters{       //Healer
     public void setID(int ID) {
         super.setID(ID);
     }
+
+    //Object class equality check
+    @Override
+    public boolean equals(Object o1){
+        if(o1 != null && getClass() == o1.getClass()){
+            Healer o = (Healer) o1;
+            return (getID() == o.getID() && getHP() == o.getHP());
+        }
+        else {return false;}
+    }
+
+    @Override
+    public int compareTo(Healer o) {   //based on HP
+        if(getHP() == o.getHP()){
+            return 0;
+        }
+        else if(getHP() < o.getHP()){return -1;}
+        else
+            return 1;
+    }
 }
 
 
-class Commoner extends Characters{      //Commoner
+class Commoner extends Characters implements Comparable<Commoner>{      //Commoner
     public Commoner(int ID){     //constructor
         setHP(1000);
         setID(ID);
@@ -99,6 +160,26 @@ class Commoner extends Characters{      //Commoner
     @Override
     public void setID(int ID) {
         super.setID(ID);
+    }
+
+    //Object class equality check
+    @Override
+    public boolean equals(Object o1){
+        if(o1 != null && getClass() == o1.getClass()){
+            Commoner o = (Commoner) o1;
+            return (getID() == o.getID() && getHP() == o.getHP());
+        }
+        else {return false;}
+    }
+
+    @Override
+    public int compareTo(Commoner o) {   //based on HP
+        if(getHP() == o.getHP()){
+            return 0;
+        }
+        else if(getHP() < o.getHP()){return -1;}
+        else
+            return 1;
     }
 }
 
@@ -1281,7 +1362,7 @@ public class Game {
             }
 
             GameRounds++;
-            //}
+
         }
 
         System.out.println("GAME OVER!!");
@@ -1297,5 +1378,4 @@ public class Game {
         System.out.println("were commoners.");
         System.out.println("--------END OF GAME---------");
     }
-
 }
